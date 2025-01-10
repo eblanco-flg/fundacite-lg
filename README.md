@@ -1,2 +1,2 @@
-# fundacite-lg.github.io
+# fundacite-lg
 Homepage for FUNDACITE La Guaira
