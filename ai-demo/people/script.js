@@ -1,4 +1,5 @@
 const video = document.getElementById('video')
+let predictedAges = [];
 
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('/fundacite-lg/ai-demo/people/models'),
