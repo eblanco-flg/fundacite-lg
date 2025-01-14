@@ -1,7 +1,7 @@
 const video = document.getElementById('video')
 
 Promise.all([
-  faceapi.nets.tinyFaceDetector.loadFromUri('fundacite-lg/ai-demo/people/models'),
+  faceapi.nets.tinyFaceDetector.loadFromUri('/fundacite-lg/ai-demo/people/models'),
   faceapi.nets.faceLandmark68Net.loadFromUri('/fundacite-lg/ai-demo/people/models'),
   faceapi.nets.faceRecognitionNet.loadFromUri('/fundacite-lg/ai-demo/people/models'),
   faceapi.nets.faceExpressionNet.loadFromUri('/fundacite-lg/ai-demo/people/models')
