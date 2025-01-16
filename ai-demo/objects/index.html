@@ -25,13 +25,26 @@
 		<video id="video" autoplay playsinline></video>
 		<canvas id="canvas"></canvas>
 		<script>
+      let isOpenCVReady = false;
 			// Elements
+
+      // Ensure OpenCV.js is ready
+      cv['onRuntimeInitialized'] = () => {
+        console.log('OpenCV.js is ready');
+        isOpenCVReady = true;
+        startCamera(); // Start camera after OpenCV is ready
+      };
+
 			const video = document.getElementById('video');
 			const canvas = document.getElementById('canvas');
 			const ctx = canvas.getContext('2d');
 
 			// Initialize Camera
 			async function startCamera() {
+        if (!isOpenCVReady) {
+            console.error('OpenCV.js is not ready yet.');
+            return;
+          }
 				try {
 					const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 					video.srcObject = stream;
