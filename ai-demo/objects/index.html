@@ -1,18 +1,105 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demostración de Detección de Objetos FUNDACITE</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-	  <link rel="stylesheet" href="../styles.css">
-  </head>
-  <body>
-    <div class="video-container">
-    </div>
-    <footer class="site-footer">
-      <p>© 2024 Fundacite. Todos los derechos reservados.</p>
-    </footer>
-  </body>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Demostración de Detección de Objetos FUNDACITE</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+		<script src="https://docs.opencv.org/4.x/opencv.js" defer></script>
+		<link rel="stylesheet" href="../styles.css">
+		<style>
+			body {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				font-family: Arial, sans-serif;
+			}
+			video, canvas {
+				border: 1px solid black;
+				margin-top: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Camera Playback with Object Recognition</h1>
+		<video id="video" autoplay playsinline></video>
+		<canvas id="canvas"></canvas>
+		<script>
+			// Elements
+			const video = document.getElementById('video');
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+
+			// Initialize Camera
+			async function startCamera() {
+				try {
+					const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+					video.srcObject = stream;
+
+					video.addEventListener('loadedmetadata', () => {
+						canvas.width = video.videoWidth;
+						canvas.height = video.videoHeight;
+						processVideo();
+					});
+				} catch (err) {
+					alert('Camera access is required: ' + err.message);
+				}
+			}
+
+			// OpenCV Processing
+			function processVideo() {
+				const cap = new cv.VideoCapture(video);
+				const src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
+				const gray = new cv.Mat();
+
+				function detectAndDraw() {
+					cap.read(src);
+					cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+					const circles = new cv.Mat();
+
+					// Detect circles using HoughCircles
+					cv.HoughCircles(
+						gray,
+						circles,
+						cv.HOUGH_GRADIENT,
+						1,
+						20,
+						50,
+						30,
+						5,
+						100
+					);
+
+					ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+					for (let i = 0; i < circles.cols; i++) {
+						const [x, y, radius] = circles.data32F.slice(i * 3, i * 3 + 3);
+						ctx.beginPath();
+						ctx.arc(x, y, radius, 0, 2 * Math.PI);
+						ctx.strokeStyle = 'red';
+						ctx.lineWidth = 3;
+						ctx.stroke();
+					}
+					circles.delete();
+
+					requestAnimationFrame(detectAndDraw);
+				}
+
+				detectAndDraw();
+
+				// Clean up memory when closing
+				window.addEventListener('beforeunload', () => {
+					src.delete();
+					gray.delete();
+				});
+			}
+
+			// Start everything
+			startCamera();
+		</script>
+		<footer class="site-footer">
+			<p>© 2024 Fundacite. Todos los derechos reservados.</p>
+		</footer>
+	</body>
 </html>
