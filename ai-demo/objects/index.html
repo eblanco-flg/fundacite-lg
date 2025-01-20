@@ -7,7 +7,12 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
-		<script src="https://threejs.org/examples/js/effects/AsciiEffect.js"></script>
+		<script type="module">
+			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+			import { AsciiEffect } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/effects/AsciiEffect.js';
+		  
+			// Your script goes here
+		</script>
 		<link rel="stylesheet" href="../styles.css">
 		<style>
 			body {
@@ -23,53 +28,55 @@
 	</head>
 	<body>
 		<div id="ascii-container"></div>
-		<script>
-		  // Scene, camera, and renderer setup
-		  const scene = new THREE.Scene();
-		  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-		  camera.position.z = 1;
-	  
-		  const renderer = new THREE.WebGLRenderer();
-		  renderer.setSize(window.innerWidth, window.innerHeight);
-	  
-		  // ASCII Effect setup
-		  const effect = new THREE.AsciiEffect(renderer, ' .:-=+*%@#', { invert: true });
-		  effect.setSize(window.innerWidth, window.innerHeight);
-		  effect.domElement.style.color = 'white';
-		  effect.domElement.style.backgroundColor = 'black';
-		  document.getElementById('ascii-container').appendChild(effect.domElement);
-	  
-		  // Video texture setup
-		  const video = document.createElement('video');
-		  video.autoplay = true;
-		  video.playsInline = true;
-	  
-		  navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+		<script type="module">
+			import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+			import { AsciiEffect } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/effects/AsciiEffect.js';
+			// Scene, camera, and renderer setup
+			const scene = new THREE.Scene();
+			const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+			camera.position.z = 1;
+		
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		
+			// ASCII Effect setup
+			const effect = new THREE.AsciiEffect(renderer, ' .:-=+*%@#', { invert: true });
+			effect.setSize(window.innerWidth, window.innerHeight);
+			effect.domElement.style.color = 'white';
+			effect.domElement.style.backgroundColor = 'black';
+			document.getElementById('ascii-container').appendChild(effect.domElement);
+		
+			// Video texture setup
+			const video = document.createElement('video');
+			video.autoplay = true;
+			video.playsInline = true;
+		
+			navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
 			video.srcObject = stream;
-		  });
-	  
-		  const videoTexture = new THREE.VideoTexture(video);
-		  const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-		  const planeGeometry = new THREE.PlaneGeometry(2, 2);
-		  const plane = new THREE.Mesh(planeGeometry, videoMaterial);
-		  scene.add(plane);
-	  
-		  // Animation loop
-		  function animate() {
+			});
+		
+			const videoTexture = new THREE.VideoTexture(video);
+			const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+			const planeGeometry = new THREE.PlaneGeometry(2, 2);
+			const plane = new THREE.Mesh(planeGeometry, videoMaterial);
+			scene.add(plane);
+		
+			// Animation loop
+			function animate() {
 			requestAnimationFrame(animate);
 			effect.render(scene, camera);
-		  }
-	  
-		  animate();
-	  
-		  // Handle resizing
-		  window.addEventListener('resize', () => {
+			}
+		
+			animate();
+		
+			// Handle resizing
+			window.addEventListener('resize', () => {
 			const width = window.innerWidth;
 			const height = window.innerHeight;
-	  
+		
 			renderer.setSize(width, height);
 			effect.setSize(width, height);
-		  });
+			});
 		</script>
 		<footer class="site-footer">
 			<p>© 2024 Fundacite. Todos los derechos reservados.</p>
