@@ -3,117 +3,73 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Demostración de Detección de Objetos FUNDACITE</title>
+		<title>Demostración de Modificación de video FUNDACITE</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-		<script defer src="https://docs.opencv.org/4.x/opencv.js" defer></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+		<script src="https://threejs.org/examples/js/effects/AsciiEffect.js"></script>
 		<link rel="stylesheet" href="../styles.css">
 		<style>
 			body {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				font-family: Arial, sans-serif;
+			margin: 0;
+			overflow: hidden;
 			}
-			video, canvas {
-				border: 1px solid black;
-				margin-top: 10px;
+			#ascii-container {
+			position: absolute;
+			top: 0;
+			left: 0;
 			}
 		</style>
 	</head>
 	<body>
-		<video id="video" autoplay playsinline></video>
-		<canvas id="canvas"></canvas>
+		<div id="ascii-container"></div>
 		<script>
-      let isOpenCVReady = false;
-			// Elements
-
-      // Ensure OpenCV.js is ready
-      cv['onRuntimeInitialized'] = () => {
-        console.log('OpenCV.js is ready');
-        isOpenCVReady = true;
-        startCamera(); // Start camera after OpenCV is ready
-      };
-
-			const video = document.getElementById('video');
-			const canvas = document.getElementById('canvas');
-			const ctx = canvas.getContext('2d');
-
-			// Initialize Camera
-			async function startCamera() {
-        if (!isOpenCVReady) {
-            console.error('OpenCV.js is not ready yet.');
-            return;
-          }
-				try {
-					const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-					video.srcObject = stream;
-
-					video.addEventListener('loadedmetadata', () => {
-						canvas.width = video.videoWidth;
-						canvas.height = video.videoHeight;
-						processVideo();
-					});
-				} catch (err) {
-					alert('Camera access is required: ' + err.message);
-				}
-			}
-
-			// OpenCV Processing
-			function processVideo() {
-				const src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-        const gray = new cv.Mat();
-
-				function detectAndDraw() {
-          // Draw the video frame onto the canvas
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          // Extract frame from canvas
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          src.data.set(imageData.data);
-
-          // Convert to grayscale
-          cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
-          // Detect circles using HoughCircles
-          const circles = new cv.Mat();
-          cv.HoughCircles(
-            gray,
-            circles,
-            cv.HOUGH_GRADIENT,
-            1,
-            20,
-            50,
-            30,
-            5,
-            100
-          );
-
-          // Draw detected circles
-          for (let i = 0; i < circles.cols; i++) {
-            const [x, y, radius] = circles.data32F.slice(i * 3, i * 3 + 3);
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-          }
-          circles.delete();
-
-          requestAnimationFrame(detectAndDraw);
-          }
-
-				detectAndDraw();
-
-				// Clean up memory when closing
-				window.addEventListener('beforeunload', () => {
-					src.delete();
-					gray.delete();
-				});
-			}
-
-			// Start everything
-			startCamera();
+		  // Scene, camera, and renderer setup
+		  const scene = new THREE.Scene();
+		  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+		  camera.position.z = 1;
+	  
+		  const renderer = new THREE.WebGLRenderer();
+		  renderer.setSize(window.innerWidth, window.innerHeight);
+	  
+		  // ASCII Effect setup
+		  const effect = new THREE.AsciiEffect(renderer, ' .:-=+*%@#', { invert: true });
+		  effect.setSize(window.innerWidth, window.innerHeight);
+		  effect.domElement.style.color = 'white';
+		  effect.domElement.style.backgroundColor = 'black';
+		  document.getElementById('ascii-container').appendChild(effect.domElement);
+	  
+		  // Video texture setup
+		  const video = document.createElement('video');
+		  video.autoplay = true;
+		  video.playsInline = true;
+	  
+		  navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+			video.srcObject = stream;
+		  });
+	  
+		  const videoTexture = new THREE.VideoTexture(video);
+		  const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+		  const planeGeometry = new THREE.PlaneGeometry(2, 2);
+		  const plane = new THREE.Mesh(planeGeometry, videoMaterial);
+		  scene.add(plane);
+	  
+		  // Animation loop
+		  function animate() {
+			requestAnimationFrame(animate);
+			effect.render(scene, camera);
+		  }
+	  
+		  animate();
+	  
+		  // Handle resizing
+		  window.addEventListener('resize', () => {
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+	  
+			renderer.setSize(width, height);
+			effect.setSize(width, height);
+		  });
 		</script>
 		<footer class="site-footer">
 			<p>© 2024 Fundacite. Todos los derechos reservados.</p>
