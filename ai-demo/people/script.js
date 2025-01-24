@@ -40,9 +40,19 @@ video.addEventListener('play', () => {
     // Custom drawing for face expressions with larger text size
     resizedDetections.forEach(result => {
       const expressions = result.expressions;
-      const expressionText = Object.entries(expressions)
+
+      // Find the expression with the highest percentage
+      const [topExpression, topValue] = Object.entries(expressions).reduce(
+        (max, current) => (current[1] > max[1] ? current : max),
+        ["", 0]
+      );
+
+      // Format the expression as "happy 95%"
+      const expressionText = `${topExpression} ${Math.round(topValue * 100)}%`;
+
+      /*const expressionText = Object.entries(expressions)
         .map(([expression, value]) => `${expression}: ${Math.round(value * 100)}%`)
-        .join(', ');
+        .join(', ');*/
 
       const bottomLeft = {
         x: result.detection.box.topLeft.x,
