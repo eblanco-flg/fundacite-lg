@@ -36,7 +36,27 @@ video.addEventListener('play', () => {
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
     //faceapi.draw.drawDetections(canvas, resizedDetections)
     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
-    faceapi.draw.drawFaceExpressions(canvas, resizedDetections)
+
+    // Custom drawing for face expressions with larger text size
+    resizedDetections.forEach(result => {
+      const expressions = result.expressions;
+      const expressionText = Object.entries(expressions)
+        .map(([expression, value]) => `${expression}: ${Math.round(value * 100)}%`)
+        .join(', ');
+
+      const bottomLeft = {
+        x: result.detection.box.topLeft.x,
+        y: result.detection.box.bottomRight.y - 20
+      };
+
+      new faceapi.draw.DrawTextField(
+        [expressionText],
+        bottomLeft,
+        { fontSize: 28 }
+      ).draw(canvas);
+    });
+
+    //faceapi.draw.drawFaceExpressions(canvas, resizedDetections)
     const age = resizedDetections[0].age;
     const interpolatedAge = interpolateAgePredictions(age);
     const bottomRight = {
@@ -45,7 +65,8 @@ video.addEventListener('play', () => {
       }
     new faceapi.draw.DrawTextField(
       [`${faceapi.utils.round(interpolatedAge, 0)} años`],
-      bottomRight
+      bottomRight,
+      { fontSize: 28 }
       ).draw(canvas);
   }, 50)
 })
