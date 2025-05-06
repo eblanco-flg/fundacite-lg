@@ -36,8 +36,7 @@ video.addEventListener('play', () => {
   const displaySize = { width, height }
   faceapi.matchDimensions(canvas, displaySize)
   setInterval(async () => {
-    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())//.withFaceLandmarks()
-    .withFaceExpressions().withAgeAndGender()
+    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions().withAgeAndGender()
     const resizedDetections = faceapi.resizeResults(detections, displaySize)
 
     const ctx = canvas.getContext('2d');
@@ -45,7 +44,7 @@ video.addEventListener('play', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     //faceapi.draw.drawDetections(canvas, resizedDetections)
-    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
+    //faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
 
     // Custom drawing for face expressions with larger text size
     resizedDetections.forEach(result => {
