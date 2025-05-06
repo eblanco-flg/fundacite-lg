@@ -43,8 +43,6 @@ video.addEventListener('play', () => {
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.translate(canvas.width, 0);
-    ctx.rotate(Math.PI / 2);
     //faceapi.draw.drawDetections(canvas, resizedDetections)
     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
 
