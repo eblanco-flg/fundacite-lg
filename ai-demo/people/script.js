@@ -19,21 +19,32 @@ function startVideo() {
 
 function interpolateAgePredictions(age) {
   predictedAges = [age].concat(predictedAges).slice(0, 30);
-  const avgPredictedAge =
-  predictedAges.reduce((total, a) => total + a) / predictedAges.length;
+  const avgPredictedAge = predictedAges.reduce((total, a) => total + a) / predictedAges.length;
   return avgPredictedAge;
 }
 
 video.addEventListener('play', () => {
   const canvas = faceapi.createCanvasFromMedia(video)
   video.insertAdjacentElement('afterend', canvas);
+
+  const width = video.videoHeight; // Swap width/height
+  const height = video.videoWidth;
+
+  canvas.width = width;
+  canvas.height = height;
   //document.body.append(canvas)
-  const displaySize = { width: video.width, height: video.height }
+  const displaySize = { width, height }
   faceapi.matchDimensions(canvas, displaySize)
   setInterval(async () => {
     const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions().withAgeAndGender()
     const resizedDetections = faceapi.resizeResults(detections, displaySize)
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
+
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.translate(canvas.width, 0);
+    ctx.rotate(Math.PI / 2);
     //faceapi.draw.drawDetections(canvas, resizedDetections)
     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections)
 
