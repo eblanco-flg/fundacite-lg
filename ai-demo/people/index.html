@@ -10,8 +10,14 @@
     <script defer src="face-api.min.js"></script>
     <script defer src="script.js"></script>
     <style>
-      video, #video, canvas {
+      video, #video {
         transform: rotate(90deg);
+        transform-origin: top left;
+        position: absolute;
+        top: 0;
+        left: 75%;
+      }
+      canvas {
         transform-origin: top left;
         position: absolute;
         top: 0;
